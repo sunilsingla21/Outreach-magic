@@ -1,0 +1,130 @@
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell, copyable_content with context %}
+{% from 'components/form.html.j2' import render_fields %}
+{% block title %}
+    Seed batches
+{% endblock title %}
+{% block head %}
+    <script src="{{ url_for('static', filename='dist/user/seeds.bundle.js') }}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    {% set has_seed_batches = user.hosts and user.has_seed_batches() %} {% set section_class = "p-2 border border-slate-200" %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        <div class="bg-white rounded-lg py-4 px-6 grid gap-4 xl:grid-cols-10">
+            <section class="{{ section_class }} row-start-2 xl:row-start-auto xl:col-span-3">
+                <form id="new-batch-form"
+                      action="{{ url_for('seed_batch.add') }}"
+                      data-host-settings="{{ url_for('host.engagement_settings', id='hostId') }}"
+                      method="post"
+                      class="grid gap-4">
+                    {{ form.csrf_token() }}
+                    <h2>Create seed emails batch</h2>
+                    {{ render_fields(form, func=first_fields) }}
+                    <div class="grid gap-2 grid-cols-[1fr_30%]">
+                        <label for="desired_total">How many accounts to generate?</label>
+                        <input id="desired_total"
+                               name="desired_total"
+                               type="number"
+                               min="1"
+                               max="{{ user.assigned_seeds }}">
+                        <div data-not-enough class="hidden text-yellow-500">There are not enough accounts</div>
+                        <div class="bg-cyan-500 max-w-fit p-1 rounded-lg">
+                            <span data-assigned-seeds class="font-bold">{{ user.assigned_seeds }}</span> seed accounts assigned
+                        </div>
+                    </div>
+                    <h3>Breakdown (Available)</h3>
+                    <div data-esp-fields class="grid gap-2">{{ render_fields(form, func=esp_fields) }}</div>
+                    <div class="grid gap-2 grid-cols-[1fr_30%]">
+                        <label for="generate_total">Total to generate</label>
+                        <input id="generate_total" name="generate_total" disabled type="number">
+                    </div>
+                    <div class="hidden text-red-400 max-w-fit ml-auto" data-max-exceeded>Maximum accounts exceeded</div>
+                    <h3>Update Settings</h3>
+                    <div data-host-settings-loading class="loading hidden mx-auto"></div>
+                    <div data-host-settings-fields class="grid gap-2">
+                        {% set args = {} %}
+                        {{ render_fields(form, func=host_fields, args=args) }}
+                    </div>
+                    <button type="submit" class="button place-self-end">Generate seed emails</button>
+                </form>
+            </section>
+            <section class="overflow-x-auto flex flex-col gap-4 row-start-1 xl:row-start-auto xl:col-span-7">
+                {% if not user.has_seed_batches() %}
+                    <p>You don't have seed email account batches!</p>
+                {% else %}
+                    <h1>Most recent Seed Batches:</h1>
+                    {% call(section) table() %}
+                        {% if section == 'head' %}
+                            {{ head_cell('Host') }}
+                            {{ head_cell('Date generated') }}
+                            {{ head_cell('Import Name') }}
+                            {{ head_cell('Token') }}
+                            {{ head_cell('Total') }}
+                            {{ head_cell('Download') }}
+                        {% elif section == 'body' %}
+                            {% for seed_batch in seed_batches[:10] %}
+                                {% call row() %}
+                                    {{ cell(user.host_map[seed_batch.host_id].name) }}
+                                    {{ cell(format_date(seed_batch.date_added, only_date=True)) }}
+                                    {{ cell(seed_batch.name) }}
+                                    {{ copyable_cell(seed_batch.token) }}
+                                    {{ cell(seed_batch.results_total) }}
+                                    {% call cell() %}
+                                        {% if seed_batch.status == 'expired' %}
+                                            ❌ Expired
+                                        {% elif seed_batch.csv_url %}
+                                            <a target="_blank"
+                                               class="link"
+                                               href="{{ url_for('seed_batch.download', id=seed_batch.id) }}">Download CSV</a>
+                                        {% else %}
+                                            ❌ Not ready
+                                        {% endif %}
+                                    {% endcall %}
+                                {% endcall %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endcall %}
+                {% endif %}
+            </section>
+        </div>
+        {% if has_seed_batches %}
+            <section class="{{ section_class }} bg-white rounded-lg py-4 px-6 grid gap-4">
+                <h2>All Seed Batches:</h2>
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Date added') }}
+                        {{ head_cell('Import name') }}
+                        {{ head_cell('Generate total') }}
+                        {{ head_cell('Results total') }}
+                        {{ head_cell('Token') }}
+                        {{ head_cell('Status') }}
+                        {{ head_cell('Download') }}
+                    {% elif section == 'body' %}
+                        {% for seed_batch in seed_batches %}
+                            {% call row() %}
+                                {{ cell(format_date(seed_batch.date_added, only_date=True)) }}
+                                {{ cell(seed_batch.name) }}
+                                {{ cell(seed_batch.generate_total) }}
+                                {{ cell(seed_batch.results_total) }}
+                                {{ copyable_cell(seed_batch.token) }}
+                                {{ cell(seed_batch.status) }}
+                                {% call cell() %}
+                                    {% if seed_batch.status == 'expired' %}
+                                        ❌ Expired
+                                    {% elif seed_batch.csv_url %}
+                                        <a target="_blank"
+                                           class="link"
+                                           href="{{ url_for('seed_batch.download', id=seed_batch.id) }}">Download CSV</a>
+                                    {% else %}
+                                        ❌ Not ready
+                                    {% endif %}
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock content %}

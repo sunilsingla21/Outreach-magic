@@ -1,0 +1,116 @@
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell with context %}
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{% block title %}
+    Attribute Uploads
+{% endblock title %}
+{% block content %}
+    <div class="container grid gap-4">
+        <div class="bg-white rounded-lg py-4 px-6 grid gap-4 lg:grid-cols-10">
+            {% set section_class = "p-2 border border-slate-200" %}
+            {% set has_csv_uploads = user.hosts and user.has_csv_uploads() %}
+            <section class="{{ section_class }} row-start-2 lg:row-start-auto lg:col-span-3">
+                <form data-new-csv-upload
+                      action="{{ url_for('csv_upload.create') }}"
+                      method="post"
+                      class="grid gap-4"
+                      enctype="multipart/form-data">
+                    {{ new_form.csrf_token }}
+                    <h2>Upload a CSV file with your email attributes</h2>
+                    <div class="grid gap-2">
+                        {{ new_form.host.label }}
+                        {{ new_form.host }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ new_form.import_source.label }}
+                        {{ new_form.import_source }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ new_form.import_name.label }}
+                        <label for="import_name" class="text-sm text-slate-500">
+                            This is the import name on the report, be descriptive. IE: translation companies, 51-200hc, us
+                        </label>
+                        {{ new_form.import_name }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ new_form.csv_file.label }}
+                        {{ new_form.csv_file(accept='.csv') }}
+                    </div>
+                    {{ custom_checkbox(new_form.update_existing) }}
+                    <button type="submit" class="button place-self-end">Create</button>
+                </form>
+            </section>
+            <section class="overflow-x-auto row-start-1 lg:row-start-auto lg:col-span-7">
+                <h1>Most recent Attribute Uploads:</h1>
+                {% if not user.hosts %}
+                    <p>
+                        You don't have any hosts yet! Go to the <a href="{{ url_for('user.hosts') }}" class="link">hosts</a> page and create one first
+                    </p>
+                {% elif not has_csv_uploads %}
+                    <p>You don't have any Attribute Uploads yet!</p>
+                {% else %}
+                    {% call(section) table() %}
+                        {% if section == 'head' %}
+                            {{ head_cell('Host') }}
+                            {{ head_cell('Date uploaded', extra_class='min-w-[14ch]') }}
+                            {{ head_cell('Import name') }}
+                            {{ head_cell('Attributes uploaded') }}
+                            {{ head_cell('Status') }}
+                        {% elif section == 'body' %}
+                            {% for csv_upload in csv_uploads[:7] %}
+                                {% call row() %}
+                                    {% if csv_upload.status == 'success' %}
+                                        {% set total = csv_upload.person_created + csv_upload.person_updated %}
+                                    {% endif %}
+                                    {{ copyable_cell(user.host_map[csv_upload.host_id].name) }}
+                                    {{ cell(format_date(csv_upload.date_uploaded), attrs='data-sort=' ~ unix_timestamp(csv_upload.date_uploaded)) }}
+                                    {{ copyable_cell(csv_upload.import_name, contents_class='line-clamp-3 break-all min-w-[5rem] max-w-[12rem]') }}
+                                    {{ cell(total) }}
+                                    {{ cell(csv_upload.status) }}
+                                {% endcall %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endcall %}
+                {% endif %}
+            </section>
+        </div>
+        {% if has_csv_uploads %}
+            <section class="{{ section_class }} bg-white rounded-lg py-4 px-6 grid gap-4">
+                <h2>All Attribute Uploads</h2>
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Host') }}
+                        {{ head_cell('Import name') }}
+                        {{ head_cell('Import source') }}
+                        {{ head_cell('Company created') }}
+                        {{ head_cell('Company updated') }}
+                        {{ head_cell('Company ignored') }}
+                        {{ head_cell('Person created') }}
+                        {{ head_cell('Person updated') }}
+                        {{ head_cell('Person ignored') }}
+                        {{ head_cell('Errors') }}
+                        {{ head_cell('Date uploaded', extra_class='min-w-[14ch]') }}
+                        {{ head_cell('Status') }}
+                    {% elif section == 'body' %}
+                        {% for csv_upload in csv_uploads %}
+                            {% call row() %}
+                                {{ copyable_cell(user.host_map[csv_upload.host_id].name) }}
+                                {{ copyable_cell(csv_upload.import_name, contents_class='line-clamp-2 min-w-[10rem]') }}
+                                {{ copyable_cell(csv_upload.import_source) }}
+                                {{ cell(csv_upload.company_created) }}
+                                {{ cell(csv_upload.company_updated) }}
+                                {{ cell(csv_upload.company_ignored) }}
+                                {{ cell(csv_upload.person_created) }}
+                                {{ cell(csv_upload.person_updated) }}
+                                {{ cell(csv_upload.person_ignored) }}
+                                {{ cell(csv_upload.errors) }}
+                                {{ cell(format_date(csv_upload.date_uploaded), attrs='data-sort=' ~ unix_timestamp(csv_upload.date_uploaded)) }}
+                                {{ cell(csv_upload.status) }}
+                            {% endcall %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,11 @@
+env/
+node_modules/
+test.*
+tokens.json
+*__pycache__/
+*tailwind-output.css
+dist/
+flask_session/
+outreach-magic-app.json
+*.env
+client_secret.json

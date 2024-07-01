@@ -1,0 +1,142 @@
+{% macro render_row(
+    group_name,
+    server_counts,
+    headers,
+    index,
+    row_attrs='',
+    buttons_cell=True,
+    group_id=None,
+    proxy_id=None,
+    update_button=False,
+    reset_button=False,
+    color_if_exceeds=False,
+    color_if_zero=False
+    ) %}
+    {% call row(attrs=row_attrs) %}
+        {% if buttons_cell %}{{ cell(index, attrs='data-index') }}{% endif %}
+        {% call cell() %}
+            {% if proxy_id %}
+                {% set id = uuid() %}
+                <div class="flex justify-between items-center">
+                    <div class="relative -translate-x-1/2 left-1/2 {{ class }}" title="{{ text }}" {{ attrs }}>
+                        <a href="{{ url_for('proxy_details.edit', id=proxy_id) }}"
+                           class="link"
+                           title="Edit proxy"
+                           target="_blank">
+                            <span>{{ proxies[proxy_id].ip }}:{{ proxies[proxy_id].port }}</span>
+                            <span data-copyable="{{ id }}" class="hidden">{{ proxies[proxy_id].string }}</span></a>
+                    </div>
+                    {{ copy_button(id) }}
+                </div>
+            {% else %}
+                {{ group_name or 'No proxy assigned' }}
+            {% endif %}
+        {% endcall %}
+        {% for header in headers %}
+            {% set count = server_counts.get(header.replace(' ', '_'), 0) %}
+            {% if color_if_zero and count == 0 %}
+                {% set extra_class = "bg-green-300" %}
+            {% elif color_if_exceeds and count >= max_per_esp %}
+                {% set extra_class = "bg-red-300" %}
+            {% endif %}
+            {{ cell(count, extra_class=extra_class) }}
+        {% endfor %}
+        {% if buttons_cell %}
+            {% call cell() %}
+                <div class="flex gap-1 justify-center">
+                    {% if update_button %}
+                        <button class="button"
+                                data-update="{{ url_for('email_group.update', id=group_id) }}">Update</button>
+                    {% endif %}
+                    {% if reset_button %}
+                        <form action="{{ url_for('email_group.reset', id=group_id) }}"
+                              method="post">
+                            <button class="button" type="submit">Reset</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endcall %}
+        {% endif %}
+    {% endcall %}
+{% endmacro %}
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell, copyable_content with context %}
+{% from 'components/form.html.j2' import render_fields %}
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% block title %}
+    Email Groups
+{% endblock title %}
+{% block head %}
+    <script src="{{ url_for('static', filename='dist/user/emailGroups.bundle.js') }}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        {% set section_class = "p-2 border border-slate-200" %}
+        <section class="{{ section_class }} grid gap-4">
+            <h1>Email Groups</h1>
+            {% call(section) table() %}
+                {% if section == 'head' %}
+                    {{ head_cell('#') }}
+                    {{ head_cell('Proxy') }}
+                    {% for server in servers %}{{ head_cell(server) }}{% endfor %}
+                    {{ head_cell() }}
+                {% elif section == 'body' %}
+                    {{ render_row('Unassigned', unassigned_server, servers, 0, color_if_zero=True) }}
+                    {% for email_group in email_groups %}
+                        {{ render_row(None, email_group.server_counts, servers, loop.index, 'data-id="' ~ email_group.id ~ '"', group_id=email_group.id, proxy_id=email_group.proxy_id, update_button=True, reset_button=True, color_if_exceeds=True) }}
+                    {% endfor %}
+                {% endif %}
+            {% endcall %}
+        </section>
+        <section class="{{ section_class }} grid gap-4">
+            <h2>Breakdown by ESP</h2>
+            {% call(section) table() %}
+                {% if section == 'head' %}
+                    {{ head_cell('Group') }}
+                    {% for esp in esps %}{{ head_cell(esp) }}{% endfor %}
+                {% elif section == 'body' %}
+                    {{ render_row('Disabled', disabled_esp, esps, buttons_cell=False) }}
+                    {{ render_row('Assigned', assigned_esp, esps, buttons_cell=False) }}
+                    {{ render_row('Unassigned', unassigned_esp, esps, buttons_cell=False) }}
+                {% endif %}
+            {% endcall %}
+        </section>
+        <section class="grid gap-8">
+            <form method="post"
+                  class="grid gap-4 {{ section_class }} hidden"
+                  data-update>
+                <h2>
+                    Update all accounts in the group #<span data-index></span>
+                </h2>
+                {{ render_fields(update_group_form) }}
+                <button type="submit" class="button place-self-end">Update</button>
+            </form>
+            <form action="{{ url_for('proxy_details.add') }}"
+                  method="post"
+                  class="grid gap-4 {{ section_class }}">
+                <h2>Add proxy details</h2>
+                {{ render_fields(proxy_details_form) }}
+                <button type="submit" class="button place-self-end">Create</button>
+            </form>
+            <div class="grid md:grid-cols-2 gap-2">
+                <form action="{{ url_for('email_group.assign_unassigned') }}"
+                      method="post"
+                      class="grid gap-4 {{ section_class }}">
+                    <h2>Assign unassigned accounts</h2>
+                    <button type="submit" class="button place-self-end">Start</button>
+                </form>
+                <form action="{{ url_for('email_group.reset', id='all') }}"
+                      method="post"
+                      class="grid gap-4 {{ section_class }}">
+                    <h2>Reset all accounts (empty all groups)</h2>
+                    <button type="submit"
+                            class="button place-self-end"
+                            data-confirm="Are you sure you want to reset all groups? This action cannot be undone">
+                        Reset
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+{% endblock content %}

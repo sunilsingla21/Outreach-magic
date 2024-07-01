@@ -1,0 +1,95 @@
+{% macro vps_form(form, title, action, id_prefix, attrs) %}
+    <form action="{{ action }}" method="post" class="grid gap-2" {{ attrs }}>
+        <h2>{{ title }}</h2>
+        {{ form.csrf_token() }}
+        <div class="grid gap-2">
+            {{ form.name.label(for=id_prefix ~ '-name') }}
+            {{ form.name(id=id_prefix ~ '-name') }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.status.label(for=id_prefix ~ '-status') }}
+            {{ form.status(id=id_prefix ~ '-status') }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.machine_id.label(for=id_prefix ~ '-machine_id') }}
+            {{ form.machine_id(id=id_prefix ~ '-machine_id') }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.hardware.label(for=id_prefix ~ '-hardware') }}
+            {{ form.hardware(id=id_prefix ~ '-hardware') }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.provider.label(for=id_prefix ~ '-provider') }}
+            {{ form.provider(id=id_prefix ~ '-provider') }}
+        </div>
+        <button type="submit" class="button place-self-end">
+            {% if id_prefix == 'new' %}
+                Create
+            {% else %}
+                Update
+            {% endif %}
+        </button>
+    </form>
+{% endmacro %}
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell, copyable_content with context %}
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{% block title %}
+    VPS Manager
+{% endblock title %}
+{% block head %}
+    <script src="{{url_for('static', filename='dist/user/vps.bundle.js')}}" defer></script>
+{% endblock head %}
+{% block content %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        <section class="overflow-x-auto grid gap-2">
+            <h1>Your VPS Machines</h1>
+            {% if not machines %}
+                <p>There are no VPS machines saved yet!</p>
+            {% else %}
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Name') }}
+                        {{ head_cell('Status') }}
+                        {{ head_cell('Last seen online') }}
+                        {{ head_cell('Engagement ready') }}
+                        {{ head_cell('Engagement success') }}
+                        {{ head_cell('Engagement errors') }}
+                        {{ head_cell('') }}
+                    {% elif section == 'body' %}
+                        {% for vps in machines %}
+                            {% call row(attrs='id=' ~ vps.id ~ ' data-vps', extra_class='relative') %}
+                                {{ cell(vps.name, attrs='data-name') }}
+                                {{ cell(vps.status, attrs='data-status') }}
+                                {{ cell(format_date(vps.last_seen_online), attrs='data-last-seen-online') }}
+                                {{ cell(vps.machine_id, extra_class='hidden', attrs='data-machine-id') }}
+                                {{ cell(vps.hardware, extra_class='hidden', attrs='data-hardware') }}
+                                {{ cell(vps.provider, extra_class='hidden', attrs='data-provider') }}
+                                {{ cell(vps.inbox_engagement_ready, attrs='data-inbox-engagement-ready') }}
+                                {{ cell(vps.inbox_engagement_success, attrs='data-inbox-engagement-success') }}
+                                {{ cell(vps.inbox_engagement_error, attrs='data-inbox-engagement-errors') }}
+                                {% call cell() %}
+                                    <div data-buttons class="flex justify-center gap-2">
+                                        <button class="button" data-edit="{{ url_for('vps.edit', id=vps.id) }}">Edit</button>
+                                    </div>
+                                    <div class="hidden w-10 h-10 p-1 overflow-hidden">
+                                        <div class="loading w-full h-full"></div>
+                                    </div>
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            {% endif %}
+        </section>
+        {% set section_class = "p-2 border border-slate-200" %}
+        <div class="grid md:grid-cols-2 gap-4">
+            <section class="{{ section_class }}">
+                {{ vps_form(new_vps_form, 'Add new VPS', url_for('vps.create'), 'new', 'data-new-form') }}
+            </section>
+            <section class="{{ section_class }} hidden">
+                {{ vps_form(edit_vps_form, 'Edit VPS', '', 'edit', 'data-edit-form') }}
+            </section>
+        </div>
+    </div>
+{% endblock content %}

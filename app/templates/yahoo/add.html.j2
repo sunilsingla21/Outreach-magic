@@ -1,0 +1,16 @@
+{% from 'components/new_account_app_password_form.html.j2' import new_account_app_password_form with context %}
+{% extends 'base.html.j2' %}
+{% block head %}
+    <script src="{{ url_for('static', filename='dist/yahoo/add.bundle.js') }}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <main class="max-w-lg mx-auto grid gap-4 bg-white py-6 px-8 rounded-lg my-4 font-semibold"
+          data-success="{{ url_for('user.emails') }}">
+        <div class="grid gap-4 place-items-center">
+            {{ svg('img/yahoo.svg', class_='h-6 w-fit') }}
+            <h1>Add a Yahoo Account</h1>
+        </div>
+        {{ new_account_app_password_form(form, 'App Password from Yahoo') }}
+    </main>
+{% endblock content %}

@@ -1,0 +1,228 @@
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell, copyable_content with context %}
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{% block title %}
+    Email accounts
+{% endblock title %}
+{% block head %}
+    <script src="{{ url_for('static', filename='dist/user/emails.bundle.js') }}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        <section class="overflow-x-auto">
+            <h1>Your email accounts:</h1>
+            {% if not user.hosts %}
+                <p>
+                    You don't have any hosts yet! Go to the <a href="{{ url_for('user.hosts') }}" class="link">hosts</a> page and create one first
+                </p>
+            {% elif not user.has_accounts() %}
+                <p>You don't have any email accounts yet!</p>
+            {% else %}
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Email') }}
+                        {{ head_cell('Host') }}
+                        {{ head_cell('Server') }}
+                        {{ head_cell('Inbox Placement') }}
+                        {{ head_cell('Inbox Engagement') }}
+                        {% if user.view == 'admin' %}
+                            {{ head_cell('Placement Account') }}
+                            {{ head_cell('Engagement Account') }}
+                            {{ head_cell('Inbox Reset') }}
+                            {{ head_cell('Relay account') }}
+                            {{ head_cell('VPS Name') }}
+                        {% endif %}
+                        {{ head_cell('SMTP') }}
+                        {{ head_cell('IMAP') }}
+                        {{ head_cell('Status') }}
+                        {{ head_cell('') }}
+                    {% elif section == 'body' %}
+                        {% macro convert_bool(bool) %}
+                            {% if bool %}
+                                On
+                            {% else %}
+                                Off
+                            {% endif %}
+                        {% endmacro %}
+                        {% for host in user.hosts %}
+                            {% for account in host.sender_accounts %}
+                                {% call row(attrs='id=' ~ account.id ~ ' data-account', extra_class='relative') %}
+                                    {% call cell() %}
+                                        {% if account.connection_type == 'OAuth' %}
+                                            {% set connection_type_class = "bg-orange-500" %}
+                                            {% set connection_type = "OAuth" %}
+                                        {% elif account.connection_type == 'App Password' %}
+                                            {% set connection_type_class = "bg-blue-500" %}
+                                            {% set connection_type = "App Pwd" %}
+                                        {% endif %}
+                                        <div class="absolute left-0 top-0 text-xs px-1 {{ connection_type_class }} text-white"
+                                             data-connection-type>{{ connection_type }}</div>
+                                        {{ copyable_content(account.username, attrs='data-email') }}
+                                    {% endcall %}
+                                    {{ copyable_cell(host.name, attrs='data-host-name') }}
+                                    {{ cell(account.esp, attrs='data-server') }}
+                                    {{ cell(convert_bool(account.inbox_placement_active), attrs='data-inbox-placement-active', extra_class='bg-green-200' if account.inbox_placement_active else '') }}
+                                    {{ cell(convert_bool(account.inbox_engagement_active), attrs='data-inbox-engagement-active', extra_class='bg-green-200' if account.inbox_engagement_active else '') }}
+                                    {% if user.view == 'admin' %}
+                                        {{ cell(convert_bool(account.placement_account_active), attrs='data-placement-account-active', extra_class='bg-green-200' if account.placement_account_active else '') }}
+                                        {{ cell(convert_bool(account.engagement_account_active), attrs='data-engagement-account-active', extra_class='bg-green-200' if account.engagement_account_active else '') }}
+                                        {{ cell(convert_bool(account.inbox_reset), attrs='data-inbox-reset', extra_class='bg-green-200' if account.inbox_reset else '') }}
+                                        {{ cell(convert_bool(account.relay_account), attrs='data-relay-account', extra_class='bg-green-200' if account.relay_account else '') }}
+                                        {{ cell(account.vps_name, attrs='data-vps='~account.machine_id, extra_class='bg-green-200' if account.relay_account else '') }}
+                                    {% endif %}
+                                    {% call cell(attrs='data-smtp-result') %}
+                                        {% if account.smtp_result is none %}
+                                            ❓
+                                        {% elif account.smtp_result %}
+                                            ✅
+                                        {% else %}
+                                            🚫
+                                        {% endif %}
+                                    {% endcall %}
+                                    {% call cell(attrs='data-imap-result') %}
+                                        {% if account.imap_result is none %}
+                                            ❓
+                                        {% elif account.imap_result %}
+                                            ✅
+                                        {% else %}
+                                            🚫
+                                        {% endif %}
+                                    {% endcall %}
+                                    {{ cell(account.status, attrs='data-status', extra_class='bg-red-200' if account.status == 'disabled' else '') }}
+                                    {% call cell() %}
+                                        <div data-buttons class="flex justify-center gap-2">
+                                            <button class="button"
+                                                    data-test="{{ url_for('account.test', id=account.id) }}">
+                                                Test
+                                            </button>
+                                            <button class="button"
+                                                    data-edit="{{ url_for('account.edit', id=account.id) }}">
+                                                Edit
+                                            </button>
+                                            <form action="{{ url_for('account.delete', id=account.id) }}"
+                                                  data-delete-account
+                                                  data-custom-form
+                                                  data-method="delete"
+                                                  data-after-submit="reload">
+                                                <button type="submit"
+                                                        class="button danger"
+                                                        data-confirm="Are you sure you want to delete this email account?">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="hidden w-10 h-10 p-1 overflow-hidden">
+                                            <div class="loading w-full h-full"></div>
+                                        </div>
+                                    {% endcall %}
+                                    {{ cell(format_date(account.last_updated_password, only_date=True), attrs='data-last-updated-password', extra_class='hidden') }}
+                                    {{ cell(format_date(account.last_updated_2fa, only_date=True), attrs='data-last-updated-2fa', extra_class='hidden') }}
+                                    {{ cell(account.engagement_via, attrs='data-engagement-via', extra_class='hidden') }}
+                                {% endcall %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            {% endif %}
+        </section>
+        {% set section_class = "p-2 border border-slate-200" %}
+        <div class="grid md:grid-cols-4 gap-4">
+            <section class="{{ section_class }} hidden md:col-span-2 md:col-start-2">
+                <form action="" method="post" class="grid gap-2" data-edit-form>
+                    <h2>Update account</h2>
+                    {{ edit_account_form.csrf_token() }}
+                    <div class="grid gap-2">
+                        <label for="account-address">Email address</label>
+                        <input id="account-address" type="text" disabled>
+                    </div>
+                    <div class="grid gap-2">
+                        {{ edit_account_form.status.label() }}
+                        {{ edit_account_form.status() }}
+                    </div>
+                    {% if user.view == 'admin' %}
+                        <div class="grid gap-2">
+                            {{ edit_account_form.password.label() }}
+                            {{ edit_account_form.password() }}
+                        </div>
+                        <div class="grid gap-2">
+                            {{ edit_account_form.two_fa.label() }}
+                            {{ edit_account_form.two_fa() }}
+                        </div>
+                    {% endif %}
+                    <div class="flex flex-wrap gap-2">
+                        {% set label_class = "py-2 px-4 border border-slate-400" %}
+                        {{ custom_checkbox(edit_account_form.inbox_placement_active, class=label_class) }}
+                        {{ custom_checkbox(edit_account_form.inbox_engagement_active, class=label_class) }}
+                        {% if user.view == 'admin' %}
+                            {{ custom_checkbox(edit_account_form.placement_account_active, class=label_class) }}
+                            {{ custom_checkbox(edit_account_form.engagement_account_active, class=label_class) }}
+                            {{ custom_checkbox(edit_account_form.inbox_reset, class=label_class) }}
+                            {{ custom_checkbox(edit_account_form.relay_account, class=label_class) }}
+                            <div class="grid gap-2">
+                                {{ edit_account_form.vps.label() }}
+                                {{ edit_account_form.vps() }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if user.view == 'admin' %}
+                        <div class="grid gap-2">
+                            {{ edit_account_form.engagement_via.label() }}
+                            {% for radio in edit_account_form.engagement_via %}{{ custom_checkbox(radio) }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="button place-self-end">Update</button>
+                </form>
+            </section>
+            <section class="{{ section_class }} col-span-2">
+                <form data-new-email
+                      action=""
+                      data-google-url="{{ url_for('google.add') }}"
+                      data-microsoft-url="{{ url_for('microsoft.login') }}"
+                      data-yahoo-url="{{ url_for('yahoo.add') }}"
+                      method="post"
+                      class="grid gap-4"
+                      target="_blank">
+                    {{ new_email_form.csrf_token }}
+                    <h2>Add a new email account to a host</h2>
+                    <div class="grid gap-2">
+                        {{ new_email_form.host.label }}
+                        {{ new_email_form.host }}
+                    </div>
+                    <div class="flex gap-4">
+                        {{ new_email_form.add_google(class='button') }}
+                        {{ new_email_form.add_microsoft(class='button') }}
+                        {{ new_email_form.add_yahoo(class='button') }}
+                    </div>
+                </form>
+            </section>
+            <section class="{{ section_class }} col-span-2">
+                <form action="{{ url_for('account.bulk_add') }}"
+                      method="post"
+                      class="grid gap-4">
+                    {{ bulk_add_form.csrf_token }}
+                    <h2>Add emails in bulk</h2>
+                    <div class="grid gap-2">
+                        {{ bulk_add_form.host.label(for=bulk_add_form.host.id + '-bulk') }}
+                        {{ bulk_add_form.host(id=bulk_add_form.host.id + '-bulk') }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ bulk_add_form.accounts.label(for=bulk_add_form.accounts.id + '-bulk') }}
+                        {{ bulk_add_form.accounts(id=bulk_add_form.accounts.id + '-bulk') }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ bulk_add_form.status.label(for=bulk_add_form.status.id + '-bulk') }}
+                        {{ bulk_add_form.status(id=bulk_add_form.status.id + '-bulk') }}
+                    </div>
+                    {{ custom_checkbox(bulk_add_form.engagement_account_active, append_to_id='-bulk') }}
+                    {{ custom_checkbox(bulk_add_form.placement_account_active, append_to_id='-bulk') }}
+                    <div class="grid gap-2">
+                        {{ edit_account_form.engagement_via.label() }}
+                        {% for radio in edit_account_form.engagement_via %}{{ custom_checkbox(radio, append_to_id='-bulk') }}{% endfor %}
+                    </div>
+                    <button type="submit" class="button">Submit</button>
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock content %}

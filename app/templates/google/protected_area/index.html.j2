@@ -1,0 +1,12 @@
+{% from 'google/components/header.html.j2' import header %}
+{% extends 'base.html.j2' %}
+{% block title %}
+    Protected area
+{% endblock title %}
+{% block content %}
+    <main class="max-w-lg mx-auto grid gap-4 bg-white py-6 px-8 rounded-lg my-4 font-semibold">
+        {{ header() }}
+        <h2 class="text-center">Google account added successfully</h2>
+        <p class="text-center">You can now close this tab</p>
+    </main>
+{% endblock content %}

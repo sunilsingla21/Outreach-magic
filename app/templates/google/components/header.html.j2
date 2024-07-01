@@ -1,0 +1,12 @@
+{% macro header() %}
+    <header class="flex gap-4">
+        <img src="{{ url_for('static', filename='img/google.svg') }}"
+             alt="Google Logo"
+             width="48"
+             height="48">
+        <div>
+            <h1 class="text-lg">Connect your Google Account</h1>
+            <p class="text-slate-400">Gmail / G-Suite</p>
+        </div>
+    </header>
+{% endmacro %}

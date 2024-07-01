@@ -1,0 +1,31 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    Login
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            <form action="" method="post">
+                <h1 class="mb-8">Login</h1>
+                {{ form.csrf_token }}
+                <div class="grid gap-2 mb-2">
+                    {{ form.email.label }}
+                    {{ form.email }}
+                </div>
+                <div class="grid gap-2 mb-2">
+                    {{ form.password.label }}
+                    {{ form.password }}
+                </div>
+                {{ form.submit(class_='button') }}
+            </form>
+            <div class="text-center grid gap-4">
+                <p>
+                    <a href="{{ url_for('main.register') }}" class="link">New user? Sign up</a>
+                </p>
+                <p>
+                    <a href="{{ url_for('main.reset_password_email') }}" class="link">Forgot password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

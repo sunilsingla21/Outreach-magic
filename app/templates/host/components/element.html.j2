@@ -1,0 +1,16 @@
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% macro element(label, value) %}
+    <div class="grid lg:grid-cols-2 bg-white">
+        <div class="px-2 py-1 grid place-items-center bg-slate-500 text-white">{{ label }}</div>
+        {% set id = uuid() %}
+        <div title="{{ value }}"
+             class="px-2 py-1 pr-8 bg-slate-200 grid place-items-center relative">
+            {% if caller %}
+                {{ caller() }}
+            {% else %}
+                <p data-copyable="{{ id }}" class="line-clamp-2 w-fit max-w-full">{{ value }}</p>
+                {{ copy_button(id, class='absolute right-1') }}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

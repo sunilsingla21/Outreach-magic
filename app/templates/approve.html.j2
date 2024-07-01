@@ -1,0 +1,30 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    {% if approved %}
+        Account approved
+    {% else %}
+        Your account is pending approval
+    {% endif %}
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            {% if approved %}
+                <h1 class=text-center>
+                    User account <span class="font-semibold">{{ approved_user.email }}</span> has been approved
+                </h1>
+                <p>You can now close this tab</p>
+            {% else %}
+                <h1>Your account is pending approval</h1>
+                <p>
+                    Check back in 24 hours or email <a href="mailto:support@outreachmagic.io" class="link">support@outreachmagic.io</a> with your order number.
+                </p>
+                <p>
+                    Thank you,
+                    <br>
+                    <span class="font-semibold">Outreach Magic Team</span>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

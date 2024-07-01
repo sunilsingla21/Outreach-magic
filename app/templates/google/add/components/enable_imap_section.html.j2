@@ -1,0 +1,39 @@
+{% macro enable_imap_section() %}
+    <section data-enable-imap data-classes="max-w-lg test" class="grid gap-4">
+        <h2 class="max-w-[32ch] mx-auto text-center font-semibold text-base">
+            First, let's <span class="text-blue-500">enable IMAP</span> access to your Google account.
+        </h2>
+        <hr>
+        <div>
+            <ol class="list-decimal pl-4 grid gap-2">
+                <li>On your computer, open Gmail.</li>
+                <li>
+                    Click the
+                    <span>
+                        <img src="{{ url_for('static', filename='img/gear.svg') }}"
+                             height="10"
+                             width="10"
+                             class="inline-block">
+                    </span> gear icon in the top right corner.
+                </li>
+                <li>Click All Settings.</li>
+                <li>
+                    Click the
+                    <a class="link"
+                       href="https://mail.google.com/mail/u/0/#settings/fwdandpop"
+                       target="blank">Forwarding and POP/IMAP</a> tab.
+                </li>
+                <li>
+                    In the <span class="font-semibold">"IMAP access"</span> section, select <span class="font-semibold">Enable IMAP</span>.
+                </li>
+                <li>Click Save Changes.</li>
+            </ol>
+        </div>
+        <div class="flex justify-between">
+            <button data-continue class="button block mx-auto">
+                Yes, IMAP has been enabled
+                {{ svg('img/right-arrow.svg', class_='fill-white inline w-4 h-4') }}
+            </button>
+        </div>
+    </section>
+{% endmacro %}

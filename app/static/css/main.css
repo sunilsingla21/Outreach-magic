@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;600;800&display=swap');
+
+html {
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+body {
+    --clr-bg-danger: hsl(0, 100%, 86%);
+    --clr-txt-danger: hsl(357, 100%, 42%);
+    --clr-bg-info: hsl(200, 65%, 91%);
+    --clr-txt-info: hsl(200, 49%, 38%);
+    --clr-txt-message: hsl(89, 79%, 30%);
+    --clr-bg-message: hsl(82, 66%, 85%);
+    --clr-bg-warning: hsl(48, 97%, 85%);
+    --clr-txt-warning: hsl(36, 100%, 31%);
+    --clr-bg-danger-hover: hsl(0, 100%, 82%);
+    --clr-bg-info-hover: hsl(235, 68%, 90%);
+    --clr-bg-message-hover: hsl(101, 78%, 77%);
+    --clr-bg-warning-hover: hsl(35, 98%, 81%);
+}
+
+#navbar-toggle:checked ~ div ul {
+    display: flex;
+}
+
+.messages-container {
+    position: fixed;
+    bottom: 4rem;
+    left: auto;
+    right: 4rem;
+    width: min(70%, 30rem);
+}
+
+@media (max-width: 400px) {
+    .messages-container {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        width: unset;
+    }
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.message {
+    --animation-timing-function: cubic-bezier(0.53, 1.2, 0.77, 1.09);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    opacity: 0;
+    padding: 1em 1.5em;
+    cursor: pointer;
+    border-radius: 0.75em;
+    animation: flash-slide-in 400ms var(--slide-in-delay, 0) forwards
+        var(--animation-timing-function);
+}
+
+.flash-slide-out {
+    animation: flash-slide-out 400ms forwards var(--animation-timing-function);
+}
+
+[data-type='error'] {
+    background-color: var(--clr-bg-danger);
+    color: var(--clr-txt-danger);
+}
+
+[data-type='info'] {
+    background-color: var(--clr-bg-info);
+    color: var(--clr-txt-info);
+}
+
+[data-type='message'] {
+    background-color: var(--clr-bg-message);
+    color: var(--clr-txt-message);
+}
+
+[data-type='warning'] {
+    background-color: var(--clr-bg-warning);
+    color: var(--clr-txt-warning);
+}
+
+[data-type='error']:hover {
+    background-color: var(--clr-bg-danger-hover);
+}
+
+[data-type='info']:hover {
+    background-color: var(--clr-bg-info-hover);
+}
+
+[data-type='message']:hover {
+    background-color: var(--clr-bg-message-hover);
+}
+
+[data-type='warning']:hover {
+    background-color: var(--clr-bg-warning-hover);
+}
+
+@keyframes flash-slide-in {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes flash-slide-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}

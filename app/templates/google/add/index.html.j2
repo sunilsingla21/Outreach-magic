@@ -1,0 +1,20 @@
+{% from 'google/components/header.html.j2' import header with context %}
+{% from 'google/add/components/enable_imap_section.html.j2' import enable_imap_section with context %}
+{% from 'google/add/components/choose_connection_type.html.j2' import choose_connection_type with context %}
+{% from 'google/add/components/add_app_to_workspace.html.j2' import add_app_to_workspace with context %}
+{% from 'google/add/components/add_with_app_password.html.j2' import add_with_app_password with context %}
+{% extends 'base.html.j2' %}
+{% block head %}
+    <script src="{{url_for('static', filename='dist/google/add.bundle.js')}}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <main class="max-w-lg mx-auto grid gap-4 bg-white py-6 px-8 rounded-lg my-4 font-semibold"
+          data-success="{{ url_for('google.protected_area') }}">
+        {{ header() }}
+        {{ enable_imap_section() }}
+        {{ choose_connection_type() }}
+        {{ add_app_to_workspace() }}
+        {{ add_with_app_password() }}
+    </main>
+{% endblock content %}

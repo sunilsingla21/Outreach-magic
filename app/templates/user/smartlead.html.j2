@@ -1,0 +1,104 @@
+{% extends 'base.html.j2' %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell, copyable_content with context %}
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{% block title %}
+    Smartlead Accounts
+{% endblock title %}
+{% block head %}
+    <script src="{{url_for('static', filename='dist/user/smartlead.bundle.js')}}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        <section class="overflow-x-auto grid gap-2">
+            <h1>Your Smartlead email accounts:</h1>
+            <div class="w-fit ml-auto mr-2 grid grid-cols-2 gap-2">
+                {% if page > 1 %}
+                    <a href="{{ url_for('user.smartlead', page=page-1) }}"
+                       class="button col-start-1">Prev</a>
+                {% endif %}
+                {% if has_next_page %}
+                    <a href="{{ url_for('user.smartlead', page=page+1) }}"
+                       class="button col-start-2">Next</a>
+                {% endif %}
+            </div>
+            {% if not user.host_ids %}
+                <p>
+                    You don't have any hosts yet! Go to the <a href="{{ url_for('user.hosts') }}" class="link">hosts</a> page and create one first
+                </p>
+            {% elif not accounts %}
+                <p>You don't have any Smartlead email accounts yet!</p>
+            {% else %}
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Email') }}
+                        {{ head_cell('SL Client ID') }}
+                        {{ head_cell('SL Type') }}
+                        {{ head_cell('Host') }}
+                        {{ head_cell('ESP') }}
+                        {{ head_cell('Updated') }}
+                        {{ head_cell('') }}
+                    {% elif section == 'body' %}
+                        {% for account in accounts %}
+                            {% call row(attrs='id=' ~ account.id ~ ' data-account', extra_class='relative') %}
+                                {{ cell(account.username, attrs='data-email') }}
+                                {{ cell(account.smartlead_client_id, attrs='data-smartlead-client-id') }}
+                                {{ cell(account.smartlead_type, attrs='data-smartlead-type') }}
+                                {{ cell(account.host_name, attrs='data-host='~account.host_id) }}
+                                {{ cell(account.esp, attrs='data-esp') }}
+                                {{ cell(format_date(account.last_updated, only_date=True), attrs='data-esp') }}
+                                {% call cell() %}
+                                    <div data-buttons class="flex justify-center gap-2">
+                                        <button class="button"
+                                                data-edit="{{ url_for('smartlead.edit_account', id=account.id) }}">
+                                            Edit
+                                        </button>
+                                    </div>
+                                    <div class="hidden w-10 h-10 p-1 overflow-hidden">
+                                        <div class="loading w-full h-full"></div>
+                                    </div>
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            {% endif %}
+        </section>
+        {% set section_class = "p-2 border border-slate-200" %}
+        <div class="grid md:grid-cols-2 gap-4">
+            <section class="{{ section_class }}">
+                <form action="{{ url_for('smartlead.update_accounts') }}"
+                      method="post"
+                      class="grid gap-2">
+                    <h2>Download new Smartlead accounts</h2>
+                    {{ update_accounts_form.csrf_token() }}
+                    <div class="grid gap-2">
+                        {{ update_accounts_form.host.label(for='update-host') }}
+                        <label for="update-host" class="text-sm text-slate-500">This host's API key will be used</label>
+                        {{ update_accounts_form.host(id='update-host') }}
+                    </div>
+                    <button type="submit" class="button place-self-end">Download latest accounts</button>
+                </form>
+            </section>
+            <section class="{{ section_class }} hidden">
+                <form action="" method="post" class="grid gap-2" data-edit-form>
+                    <h2>Update account</h2>
+                    {{ form.csrf_token() }}
+                    <div class="grid gap-2">
+                        <label for="account-address">Email address</label>
+                        <input id="account-address" type="text" disabled>
+                    </div>
+                    <div class="grid gap-2">
+                        {{ form.host.label() }}
+                        {{ form.host() }}
+                    </div>
+                    <div class="grid gap-2">
+                        {{ form.esp.label() }}
+                        {{ form.esp() }}
+                    </div>
+                    <button type="submit" class="button place-self-end">Update</button>
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock content %}

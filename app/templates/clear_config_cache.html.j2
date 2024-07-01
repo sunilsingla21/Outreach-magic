@@ -1,0 +1,19 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    Clear cache
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            <h1>Clear config cache</h1>
+            <p>
+                Values from the <code>config</code> collection are cached for 24 hours. If you made a change and want it to take effect immediately, clear the cache.
+            </p>
+            <div class="text-center">
+                <form method="post" action="">
+                    <button class="button">Clear cache</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

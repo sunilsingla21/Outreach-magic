@@ -1,0 +1,35 @@
+{% from 'components/form.html.j2' import render_fields %}
+{% extends 'base.html.j2' %}
+{% block title %}
+    Edit proxy details
+{% endblock title %}
+{% block content %}
+    <div class="container my-4 grid gap-4">
+        <div class="flex gap-4 justify-between">
+            <h1>Edit proxy</h1>
+            <form data-method="delete" data-after-submit="reload">
+                <button type="submit"
+                        class="button danger"
+                        data-confirm="Are you sure you want to delete this proxy?">Delete proxy</button>
+            </form>
+        </div>
+        <ul>
+            <li>
+                <span class="font-bold">IP:</span> {{ proxy.ip }}
+            </li>
+            <li>
+                <span class="font-bold">Port:</span> {{ proxy.port }}
+            </li>
+            <li>
+                <span class="font-bold">Username:</span> {{ proxy.username }}
+            </li>
+            <li>
+                <span class="font-bold">Password:</span> {{ proxy.password }}
+            </li>
+        </ul>
+        <form method="post" class="grid gap-4">
+            {{ render_fields(form) }}
+            <button type="submit" class="button place-self-end">Save</button>
+        </form>
+    </div>
+{% endblock content %}

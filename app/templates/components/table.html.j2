@@ -1,0 +1,51 @@
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% set cell_class = "border border-slate-300 py-1 px-2" %}
+{% set head_class = "select-none cursor-pointer" %}
+{% macro row(text, class='odd:bg-slate-200', attrs='', extra_class='') %}
+    <tr class="{{ class }} {{ extra_class }}" {{ attrs }}>{{ caller() }}
+    </tr>
+{% endmacro %}
+{% macro head_cell(text, class=cell_class, attrs='', extra_class='') %}
+    <th class="{{ class }} {{ extra_class }} {{ head_class }}" {{ attrs }}>{{ text }}
+    </th>
+{% endmacro %}
+{% macro copyable_content(text, caller_, class, attrs) %}
+    {% set id = uuid() %}
+    <div class="flex justify-between items-center">
+        <div data-copyable="{{ id }}" class="relative -translate-x-1/2 left-1/2 {{ class }}" title="{{ text }}" {{ attrs }}>
+            {% if caller_ %}
+                {{ caller_() }}
+            {% elif text is not none %}
+                {{ text }}
+            {% endif %}
+        </div>
+        {{ copy_button(id) }}
+    </div>
+{% endmacro %}
+{% macro copyable_cell(text, class=cell_class, attrs='', extra_class='', contents_class='') %}
+    {% set caller_ = caller %}
+    {% call cell(class=cell_class, attrs=attrs, extra_class=extra_class) %}
+        {{ copyable_content(text, caller_, contents_class) }}
+    {% endcall %}
+{% endmacro %}
+{% macro cell(text, class=cell_class, attrs='', extra_class='') %}
+    <td class="{{ class }} {{ extra_class }}" {{ attrs }}>
+        {% if caller %}
+            {{ caller() }}
+        {% elif text is not none %}
+            {{ text }}
+        {% endif %}
+    </td>
+{% endmacro %}
+{% macro table(class='border-collapse w-full text-center', head_class='bg-slate-600 text-white') %}
+    <div class="max-h-[80vh] overflow-y-auto">
+        <table class="{{ class }} relative">
+            <thead class="{{ head_class }} sticky top-0 z-10">
+                {{ caller('head') }}
+            </thead>
+            <tbody>
+                {{ caller('body') }}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}

@@ -1,0 +1,49 @@
+{% from 'google/add/components/list_item.html.j2' import list_item %}
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% macro add_app_to_workspace() %}
+    <section data-add-app-to-workspace
+             data-classes="max-w-lg"
+             class="hidden grid gap-8">
+        <div class="grid gap-2">
+            <h2 class="text-slate-400 text-center text-base font-semibold">
+                Allow Outreach Magic to access your Google workspace
+            </h2>
+            <p class="py-1 px-4 bg-green-200 w-fit mx-auto text-xs rounded-lg">You only need to do this once per domain</p>
+        </div>
+        <hr>
+        <div>
+            <ol class="list-decimal pl-4 grid gap-4">
+                <li>
+                    Go to your
+                    <a class="link"
+                       href="https://admin.google.com/u/1/ac/owl/list?tab=configuredApps"
+                       target="blank">Google Workspace Admin Panel</a>
+                </li>
+                <li>
+                    Click <span class="font-bold">"Add App"</span> and then select <span class="font-bold">"OAuth App Name or Client ID"</span>
+                </li>
+                <li>
+                    Use the following Client-ID to search for Outreach Magic:
+                    <div class="flex gap-2 p-2 bg-slate-200 mt-2">
+                        <span data-copyable="client-id" class="break-all">{{ config['GOOGLE_CLIENT_ID'] }}</span>
+                        {{ copy_button('client-id') }}
+                    </div>
+                </li>
+                <li>Select and approve Outreach Magic to access your Google Workspace</li>
+                <li>
+                    Login to your Google Account clicking the button below. <span class="font-bold">Remember</span> to give Outreach Magic <span class="font-bold">access to your emails</span> by checking the box</span>
+                </li>
+            </ol>
+        </div>
+        <div class="flex justify-between font-semibold">
+            <button data-back class="text-slate-400">
+                {{ svg('img/right-arrow.svg', class_='fill-slate-400 rotate-180 w-4 h-4 inline') }}
+                Back
+            </button>
+            <a href="{{ url_for('google.login') }}" class="button">
+                Login
+                {{ svg('img/right-arrow.svg', class_='fill-white w-4 h-4 inline') }}
+            </a>
+        </div>
+    </section>
+{% endmacro %}

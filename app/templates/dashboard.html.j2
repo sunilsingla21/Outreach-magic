@@ -1,0 +1,16 @@
+{% set body_class = "grid grid-rows-1 min-h-screen" %}
+{% set navbar_type = "bottom" %}
+{% extends 'base.html.j2' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    {% set iframe_id = uuid() %}
+    <div class="h-full grid place-items-center">
+        <iframe id="{{ iframe_id }}"
+                data-src="{{ iframe_url }}"
+                class="w-full h-full hidden">
+        </iframe>
+        <div class="loading w-24 h-24 border-8" data-for="{{ iframe_id }}"></div>
+    </div>
+{% endblock content %}

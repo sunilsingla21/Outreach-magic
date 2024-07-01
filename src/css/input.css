@@ -1,0 +1,456 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-weight: bold;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3,
+    h4 {
+        font-size: 1.125rem;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    a {
+        display: inline-block;
+    }
+
+    option:checked {
+        @apply bg-slate-200;
+    }
+
+    :disabled {
+        @apply cursor-not-allowed;
+    }
+
+    [type='text'],
+    [type='url'],
+    [type='email'],
+    [type='password'],
+    [type='number'],
+    select,
+    textarea {
+        border-radius: 0.5em;
+        padding: 0.25em 0.5em;
+        border: none;
+        @apply border;
+        @apply border-solid;
+        @apply outline-2;
+        @apply focus-visible:outline;
+
+        /* Light */
+        @apply border-neutral-300;
+        @apply text-neutral-900;
+
+        /* Dark */
+        @apply dark:border-slate-400;
+        @apply dark:bg-slate-700;
+        @apply dark:text-neutral-100;
+        @apply dark:outline-slate-100;
+    }
+}
+
+@layer components {
+    /* Checkbox styles */
+    .checkbox-merge {
+        @apply sr-only;
+    }
+    .checkbox-merge + label {
+        cursor: pointer;
+        user-select: none;
+        border-radius: 1em;
+        @apply border-2;
+        @apply border-solid;
+        padding: 0.25em 0.5em;
+
+        transition: 100ms;
+        transition-property: background-color, transform, color;
+    }
+    .checkbox-merge:is(:focus-visible, :hover) + label {
+        transform: scale(1.05);
+    }
+    .checkbox-merge:checked + label {
+        @apply text-white;
+        @apply bg-sky-900;
+    }
+
+    .custom-checkbox {
+        display: grid;
+        grid-template-columns: 1em auto;
+        align-items: center;
+        gap: 0.5em;
+        cursor: pointer;
+        @apply select-none;
+    }
+    .custom-checkbox > input:is([type='checkbox'], [type='radio']) {
+        /* Add if not using autoprefixer */
+        -webkit-appearance: none;
+        /* Remove most all native input styles */
+        appearance: none;
+        /* For iOS < 15 */
+        background-color: var(--form-background);
+        /* Not removed via appearance */
+        margin: 0;
+
+        font: inherit;
+        @apply cursor-pointer;
+        width: 1.15em;
+        height: 1.15em;
+        border: 0.125em solid currentColor;
+        border-radius: 0.15em;
+        transform: translateY(-0.075em);
+        display: grid;
+        place-content: center;
+    }
+
+    .custom-checkbox > input:is([type='checkbox'], [type='radio'])::before {
+        content: '';
+        width: 0.65em;
+        height: 0.65em;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        transform: scale(0);
+        transform-origin: bottom left;
+        transition: 50ms transform ease-in-out;
+        box-shadow: inset 1em 1em var(--form-control-color);
+        background-color: currentColor;
+    }
+
+    .custom-checkbox
+        > input:is([type='checkbox'], [type='radio']):checked::before {
+        transform: scale(1);
+    }
+
+    .custom-checkbox
+        > input:is([type='checkbox'], [type='radio']):focus-visible {
+        outline: max(2px, 0.15em) solid currentColor;
+        outline-offset: max(2px, 0.15em);
+    }
+
+    .custom-checkbox:has(:disabled) {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .custom-checkbox > input:is([type='checkbox'], [type='radio']):disabled {
+        --form-control-color: var(--form-control-disabled);
+
+        color: var(--form-control-disabled);
+        cursor: not-allowed;
+    }
+
+    /* Links */
+    .link {
+        @apply relative;
+        @apply text-blue-500;
+        @apply dark:text-sky-300;
+    }
+    .link::after {
+        content: '';
+        position: absolute;
+        background-color: currentColor;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        width: 10%;
+        transition: width 200ms;
+    }
+    .link:where(:hover, :focus-visible)::after {
+        width: 100%;
+    }
+
+    /* Buttons */
+    .button {
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        @apply text-white;
+        @apply bg-sky-900;
+        padding: 0.25em 1em;
+        border-radius: 0.5em;
+        transition: transform 150ms;
+    }
+    .button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    .button:focus-visible {
+        box-shadow: inset 0 0 0 2px white;
+    }
+    .button:is(:focus-visible, :hover):not(:disabled) {
+        transform: scale(1.05);
+    }
+    .button.danger {
+        background-color: var(--clr-bg-danger);
+        color: var(--clr-txt-danger);
+    }
+    .button.confirm {
+        background-color: rgb(74, 222, 128);
+        color: var(--clr-txt-message);
+    }
+    .button:where(.delete, .edit, .check, .cancel, .add)::before {
+        display: inline-block;
+        content: '';
+        background-size: contain;
+        width: 0.875em;
+        height: 0.875em;
+        vertical-align: middle;
+    }
+    .button.delete::before {
+        background-image: var(--url-delete-icon);
+    }
+    .button.edit::before {
+        background-image: var(--url-edit-icon);
+        /* Filter to convert svg to white */
+        filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%)
+            hue-rotate(93deg) brightness(103%) contrast(103%);
+    }
+    .button.check::before {
+        background-image: var(--url-check-icon);
+    }
+    .button.cancel::before {
+        background-image: var(--url-x-icon);
+    }
+    .button.add::before {
+        background-image: var(--url-plus-icon);
+        /* Filter to convert svg to white */
+        filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%)
+            hue-rotate(93deg) brightness(103%) contrast(103%);
+    }
+
+    .loading {
+        @apply animate-spin;
+        @apply border-4;
+        @apply rounded-full;
+        @apply border-gray-400;
+        @apply border-t-gray-800;
+        @apply w-8;
+        @apply h-8;
+    }
+
+    .resize-right {
+        @apply relative;
+        @apply overflow-auto;
+    }
+
+    .resize-right::after {
+        content: '';
+        background-color: blue;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        cursor: ew-resize;
+    }
+}
+
+.menu-expansion {
+    display: grid;
+    grid-template-rows: 0fr;
+}
+
+.menu-expansion > div {
+    overflow: hidden;
+}
+
+.menu-expansion.hidden {
+    display: none;
+}
+
+.menu-expansion.expand {
+    animation: menu-expansion-expand 150ms forwards;
+}
+
+.menu-expansion.close {
+    animation: menu-expansion-close 150ms forwards;
+}
+
+@keyframes menu-expansion-expand {
+    0% {
+        grid-template-rows: 0fr;
+    }
+
+    100% {
+        grid-template-rows: 1fr;
+    }
+}
+
+@keyframes menu-expansion-close {
+    0% {
+        grid-template-rows: 1fr;
+    }
+
+    100% {
+        grid-template-rows: 0fr;
+    }
+}
+
+.animate-pulse-outline {
+    animation: pulse-outline 0.75s infinite alternate;
+}
+
+@keyframes pulse-outline {
+    0% {
+        outline-color: red;
+    }
+
+    100% {
+        outline-color: transparent;
+    }
+}
+
+@keyframes slide-in-left {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    25% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-out-left {
+    100% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+
+    75% {
+        opacity: 0;
+    }
+
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-down {
+    0% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    25% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-out-up {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    75% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+@keyframes slide-out-right {
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    75% {
+        opacity: 0;
+    }
+
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-up-down {
+    0% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(-3%);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    75% {
+        transform: translateY(3%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-in-left {
+    animation: slide-in-left 250ms forwards;
+}
+
+.animate-slide-out-left {
+    animation: slide-out-left 250ms forwards;
+}
+
+.animate-slide-out-right {
+    animation: slide-out-right 250ms forwards;
+}
+
+.animate-slide-in-down {
+    animation: slide-in-down 250ms forwards;
+}
+
+.animate-slide-out-up {
+    animation: slide-out-up 250ms forwards;
+}
+
+.animate-slide-up-down-infinite {
+    animation: slide-up-down 1000ms infinite linear;
+}
+
+.ql-editor img {
+    display: initial;
+}
+
+[aria-sort]::after {
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+[aria-sort='descending']::after {
+    content: '▲';
+}
+[aria-sort='ascending']::after {
+    content: '▼';
+}

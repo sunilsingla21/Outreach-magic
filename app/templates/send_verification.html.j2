@@ -1,0 +1,17 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    Verify your account
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            <h1>
+                {% if sent %}
+                    A verification email has been sent
+                {% else %}
+                    The verification email was already sent. Please check your inbox or spam folders or wait 5 minutes and refresh
+                {% endif %}
+            </h1>
+        </div>
+    </div>
+{% endblock content %}

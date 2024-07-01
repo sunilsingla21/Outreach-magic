@@ -1,0 +1,10 @@
+{% macro copy_button(id, class='', default_class='flex-shrink-0 w-10') %}
+    <button class="{{ default_class }} {{ class }}" data-copy="{{ id }}">
+        <img src="{{ url_for('static', filename='img/copy.svg') }}"
+             class="w-4 h-4 ml-auto"
+             data-clipboard>
+        <img src="{{ url_for('static', filename='img/tick.svg') }}"
+             class="w-4 h-4 ml-auto hidden"
+             data-tick>
+    </button>
+{% endmacro %}

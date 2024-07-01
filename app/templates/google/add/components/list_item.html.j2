@@ -1,0 +1,14 @@
+{% macro list_item(text, type='good') %}
+    <li class="flex gap-2 items-center font-semibold">
+        {% if type == 'good' %}
+            <div class="h-6 w-6 p-1 bg-blue-300 rounded-full">
+                <img src="{{ url_for('static', filename='img/tick.svg') }}">
+            </div>
+        {% elif type == 'bad' %}
+            <div class="h-7 w-7 rounded-full">
+                <img src="{{ url_for('static', filename='img/warning.svg') }}">
+            </div>
+        {% endif %}
+        {{ text }}
+    </li>
+{% endmacro %}

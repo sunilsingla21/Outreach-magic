@@ -1,0 +1,105 @@
+{% extends 'base.html.j2' %}
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% from 'components/table.html.j2' import table, head_cell, row, cell, copyable_cell with context %}
+{% from 'host/components/host_form.html.j2' import host_form with context %}
+{% block title %}
+    Hosts
+{% endblock title %}
+{% block head %}
+    <script src="{{ url_for('static', filename='dist/user/hosts.bundle.js') }}"
+            defer></script>
+{% endblock head %}
+{% block content %}
+    <div class="container bg-white rounded-lg py-4 px-6 grid gap-4">
+        <section class="overflow-x-auto">
+            <h1>Your hosts:</h1>
+            {% if not user.hosts %}
+                <p>You don't have any hosts yet!</p>
+            {% else %}
+                {% call(section) table() %}
+                    {% if section == 'head' %}
+                        {{ head_cell('Host') }}
+                        {{ head_cell('Host Crypt') }}
+                        {# {{ head_cell('Total Sent') }} #}
+                        {# {{ head_cell('Total Replies') }} #}
+                        {{ head_cell('Looker Studio URL') }}
+                        {# {{ head_cell('Auto CC') }} #}
+                        {# {{ head_cell('CC in Replies') }} #}
+                        {# {{ head_cell('Notification addresses') }} #}
+                        {# {{ head_cell('Timezone') }} #}
+                        {{ head_cell('Smartlead Webhook') }}
+                        {{ head_cell('') }}
+                    {% elif section == 'body' %}
+                        {% for host in user.hosts %}
+                            {% call row() %}
+                                {% call cell() %}
+                                    <a href="{{ url_for('host.details', name=host.name) }}" class="link">{{ host.name }}</a>
+                                {% endcall %}
+                                {{ copyable_cell(host.crypt) }}
+                                {# {{ copyable_cell(host.total_sent) }}
+                                {{ copyable_cell(host.total_received) }} #}
+                                {% call cell() %}
+                                    <div class="flex justify-between items-center w-max mx-auto">
+                                        <a href="{{ host.looker_studio_url }}"
+                                           target="_blank"
+                                           class="link -translate-x-1/2 left-1/2 line-clamp-1">Report Link</a>
+                                        {% set id = uuid() %}
+                                        <div data-copyable="{{ id }}" class="hidden">{{ host.looker_studio_url }}</div>
+                                        {{ copy_button(id) }}
+                                    </div>
+                                {% endcall %}
+                                {# {{ cell('On' if host.auto_cc_active else 'Off') }}
+                                {{ copyable_cell(host.cc_address_string) }}
+                                {{ copyable_cell(host.notification_address_string) }} #}
+                                {# {{ copyable_cell(host.timezone) }} #}
+                                {% call cell() %}
+                                    <div class="flex justify-between items-center w-max mx-auto">
+                                        <a href="#" class="link -translate-x-1/2 left-1/2 line-clamp-1">Smartlead Webhook</a>
+                                        {% set id = uuid() %}
+                                        <div data-copyable="{{ id }}" class="hidden">{{ host.smartlead_webhook }}</div>
+                                        {{ copy_button(id) }}
+                                    </div>
+                                {% endcall %}
+                                {% call cell() %}
+                                    <form action="{{ url_for('host.delete', id=host.id) }}"
+                                          data-custom-form
+                                          data-method="delete"
+                                          data-after-submit="reload">
+                                        <div data-hide class="flex justify-center gap-2">
+                                            <button type="submit"
+                                                    class="button danger"
+                                                    data-confirm="Are you sure you want to remove this host from your account?">
+                                                Delete
+                                            </button>
+                                            <a target="_blank"
+                                               class="button"
+                                               href="{{ url_for('host.details', name=host.name) }}">Edit</a>
+                                        </div>
+                                        <div class="loading hidden mx-auto"></div>
+                                    </form>
+                                {% endcall %}
+                            {% endcall %}
+                        {% endfor %}
+                    {% endif %}
+                {% endcall %}
+            {% endif %}
+        </section>
+        <div class="grid md:grid-cols-4 gap-4">
+            {% set section_class = "p-2 border border-slate-200" %}
+            <section class="{{ section_class }} md:col-span-2">
+                {{ host_form(new_host_form, 'new', url_for('host.create')) }}
+            </section>
+            <section class="{{ section_class }} md:col-span-2">
+                <form action="{{ url_for('host.add') }}" method="post" class="grid gap-2">
+                    <h2>Add an existing host</h2>
+                    {{ add_existing_host_form.csrf_token }}
+                    <div class="grid gap-2">
+                        {{ add_existing_host_form.host_crypt.label }}
+                        {{ add_existing_host_form.host_crypt }}
+                    </div>
+                    {{ add_existing_host_form.submit(class_='button place-self-end') }}
+                </form>
+            </section>
+        </div>
+    </div>
+{% endblock content %}

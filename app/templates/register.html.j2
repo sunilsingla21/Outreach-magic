@@ -1,0 +1,22 @@
+{% from 'components/form.html.j2' import render_fields %}
+{% extends 'base.html.j2' %}
+{% block title %}
+    Register
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            <form action="{{ url_for('main.register') }}"
+                  method="post"
+                  class="grid gap-2"
+                  data-select-current-timezone>
+                <h1 class="mb-8">Register</h1>
+                {{ render_fields(form, func=except_submit) }}
+                {{ form.submit(class='place-self-start button') }}
+            </form>
+            <div class="text-center">
+                <a href="{{ url_for('main.index') }}" class="link">Have an account? Login</a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

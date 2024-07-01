@@ -1,0 +1,28 @@
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{# TODO refactor arguments #}
+{% macro render_fields(form, func=None, negate=False, args={}) %}
+    {% for field in form if (not func or func(field)) != negate %}
+        {% if field.name == 'csrf_token' %}
+            {{ field }}
+        {% elif field.type == 'BooleanField' %}
+            {{ custom_checkbox(field, args=args) }}
+        {% elif field.type == 'IntegerField' %}
+            <div class="grid gap-2 grid-cols-[1fr_30%]">
+                {{ field.label() }}
+                {{ field() }}
+            </div>
+        {% elif field.type == 'TextAreaField' %}
+            <div class="grid gap-2">
+                {{ field.label() }}
+                {{ field(rows=4) }}
+            </div>
+        {% elif field.type == 'SubmitField' %}
+            {{ field(class='button') }}
+        {% else %}
+            <div class="grid gap-2">
+                {{ field.label() }}
+                {{ field }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}

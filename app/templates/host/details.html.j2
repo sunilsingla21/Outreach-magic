@@ -1,0 +1,53 @@
+{% from 'host/components/element.html.j2' import element with context %}
+{% from 'host/components/host_form.html.j2' import host_form with context %}
+{% from 'components/copy_button.html.j2' import copy_button %}
+{% extends 'base.html.j2' %}
+{% block title %}
+    Host | {{ host.name }}
+{% endblock title %}
+{% block content %}
+    <div class="container my-4 grid gap-4">
+        <h1>Host: {{ host.name }}</h1>
+        <p>
+            <a href="{{ url_for('user.hosts') }}" class="link">Go back to hosts page</a>
+        </p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-autofill-500 lg:gap-1">
+                {{ element('Host crypt', host.crypt) }}
+                {{ element('Timezone', host.timezone) }}
+                {# {{ element('CC in replies', host.cc_address_string) }}
+                {{ element('Notification addresses', host.notification_address_string) }} #}
+                {{ element('Smartlead API Key', host.smartlead_api_key) }}
+                {# {{ element('Instantly workspace', host.instantly_workspace) }}
+                {{ element('Instantly API key', host.instantly_api_key) }}
+                {{ element('Warmup tags', ', '.join(host.warmup_tags)) }}
+                {{ element('Slack ID', host.slack_channel_id) }}
+                {{ element('Total sent', host.total_sent) }}
+                {{ element('Total received', host.total_received) }} #}
+                {% call element('Looker Studio URL', host.looker_studio_url) %}
+                    <a href="{{ host.looker_studio_url }}"
+                       target="_blank"
+                       class="link line-clamp-1">Report Link</a>
+                    {% set id = uuid() %}
+                    <div data-copyable="{{ id }}" class="hidden">{{ host.looker_studio_url }}</div>
+                    {{ copy_button(id, class='absolute right-1') }}
+                {% endcall %}
+                {% call element('Smartlead Webhook', host.smartlead_webhook) %}
+                    <a href="#" class="link line-clamp-1">Smartlead Webhook</a>
+                    {% set id = uuid() %}
+                    <div data-copyable="{{ id }}" class="hidden">{{ host.smartlead_webhook }}</div>
+                    {{ copy_button(id, class='absolute right-1') }}
+                {% endcall %}
+                {# {{ element('Auto exclude addresses', ', '.join(host.auto_exclude_addresses)) }}
+                {{ element('Auto exclude usernames', ', '.join(host.auto_exclude_usernames)) }}
+                {{ element('Auto exclude domains', ', '.join(host.auto_exclude_domains)) }}
+                {{ element('Do not contact Google Sheet', host.do_not_contact_sheet_url) }}
+                {{ element('Do not contact addresses', ', '.join(host.do_not_contact_addresses)) }}
+                {{ element('Do not contact domains', ', '.join(host.do_not_contact_domains)) }} #}
+            </div>
+            <div class="max-w-lg mx-auto">
+                {{ host_form(form, 'edit', url_for('host.edit', id=host.id, next=url_for('host.details', name=host.name)), host) }}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

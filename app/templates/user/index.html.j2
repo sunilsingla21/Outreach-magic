@@ -1,0 +1,25 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    Main menu
+{% endblock title %}
+{% block content %}
+    {% set section_class = "max-w-xl bg-white py-4 px-6 rounded-xl mx-auto" %}
+    <div class="container grid gap-4">
+        <section class="min-w-[28rem] {{ section_class }}">
+            <p class="text-xl font-bold">Welcome back, {{ user.email }}!</p>
+            {% if user.last_login %}<p>Last login: {{ user.last_login.strftime(time_format) }}</p>{% endif %}
+        </section>
+        <section class="min-w-[16rem] text-center {{ section_class }}">
+            <h1>Main menu</h1>
+            <div class="grid gap-4">
+                {% for key in pages_for_view[user.view] %}
+                    {% set page = pages[key] %}
+                    <a href="{{ page['url'] }}" class="button">{{ page['title'] }}</a>
+                {% endfor %}
+                {% if user.is_authenticated and user.view == 'admin' %}
+                    <a href="{{ url_for('main.clear_config_cache') }}" class="button">Clear config cache</a>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+{% endblock content %}

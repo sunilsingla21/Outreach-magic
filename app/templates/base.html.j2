@@ -1,0 +1,63 @@
+{% from 'components/navbar.html.j2' import navbar with context %}
+{% set time_format = "%b %d %H:%M:%S" %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/main.css') }}" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/tailwind-output.css') }}" />
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <title>
+            {% block title %}
+            {% endblock title %}
+        </title>
+        {% if not local_env %}
+            <script type="text/javascript">
+            (function() {
+            window.__insp = window.__insp || [];
+            __insp.push(['wid', 360425918]);
+            var ldinsp = function(){
+            if(typeof window.__inspld != "undefined") return; window.__inspld = 1; var insp = document.createElement('script'); insp.type = 'text/javascript'; insp.async = true; insp.id = "inspsync"; insp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://cdn.inspectlet.com/inspectlet.js?wid=360425918&r=' + Math.floor(new Date().getTime()/3600000); var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(insp, x); };
+            setTimeout(ldinsp, 0);
+            })();
+            __insp.push(['identify', "{{user and user.email or 'anonymous'}}"]);
+            </script>
+            <!-- End Inspectlet Asynchronous Code -->
+        {% endif %}
+        <script src="{{url_for('static', filename='dist/base.bundle.js')}}" defer></script>
+        {% block head %}
+        {% endblock head %}
+    </head>
+    <body class="bg-slate-100 text-neutral-900 dark:bg-slate-800 dark:text-neutral-100 {{ body_class }}">
+        {# Navbar #}
+        {{ navbar(navbar_type or 'top') }}
+        {# Content block #}
+        <div class="isolate relative z-0">
+            {% block content %}
+            {% endblock content %}
+        </div>
+        {# Flashed messages #}
+        <div class="messages-container">
+            {% with messages = get_flashed_messages(True) %}
+                {% if messages %}
+                    <ul class="messages-list">
+                        {% for (category, message) in messages %}
+                            <li data-type="{{ category }}" class="message shadow-md">
+                                <div>
+                                    {% for line in message.splitlines() %}<p>{{ line }}</p>{% endfor %}
+                                </div>
+                                <button>X</button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </body>
+</html>

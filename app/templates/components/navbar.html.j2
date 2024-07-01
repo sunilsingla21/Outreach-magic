@@ -1,0 +1,53 @@
+{% macro navbar(type) %}
+    {% set bg_classes = "bg-slate-700 text-white" %}
+    {% if type == 'top' %}
+        {% set nav_class = "flex gap-8 justify-between sticky top-0" %}
+        {% set toggle_class = "md:hidden" %}
+        {% set list_container_class = "md-max:absolute top-full left-0 right-0 " %}
+        {% set list_class = "md-max:pb-4 md-max:flex-col md-max:container md-max:hidden" %}
+    {% else %}
+        {% set nav_class = "fixed top-2 right-1" %}
+        {% set list_container_class = "fixed right-1 top-20" %}
+        {% set list_class = "pb-4 flex-col container hidden" %}
+    {% endif %}
+    <nav class="{{ nav_class }} py-4 px-4 {{ bg_classes }} items-center z-10">
+        {% if type == 'top' %}
+            <a href="{{ url_for('user.index') }}">
+                <img src="{{ url_for('static', filename='img/logo-dark.png') }}"
+                     alt="Logo"
+                     class="h-8">
+            </a>
+        {% endif %}
+        <div>
+            <input type="checkbox"
+                   id="navbar-toggle"
+                   class="sr-only peer {{ toggle_class }}">
+            <label for="navbar-toggle"
+                   class="{{ toggle_class }} cursor-pointer select-none peer-focus-visible:outline outline-2 outline-white text-xl">
+                <span class="sr-only">Toggle navbar menu</span>&#9776;
+            </label>
+            <div class="{{ bg_classes }} {{ list_container_class }} z-10">
+                <ul class="flex gap-8 {{ list_class }}">
+                    {% if user.is_authenticated %}
+                        {% for key in pages_for_view[user.view] %}
+                            {% set page = pages[key] %}
+                            <li>
+                                <a href="{{ page['url'] }}" class="link text-white">{{ page['title'] }}</a>
+                            </li>
+                        {% endfor %}
+                        <li>
+                            <a href="{{ url_for('main.logout') }}" class="link text-white">Logout</a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{{ url_for('main.register') }}" class="link text-white">Register</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('main.login') }}" class="link text-white">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endmacro %}

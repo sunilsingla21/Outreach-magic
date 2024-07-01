@@ -1,0 +1,60 @@
+{% from 'google/add/components/list_item.html.j2' import list_item %}
+{% macro choose_connection_type() %}
+    <section data-choose-connection-type
+             data-classes="max-w-5xl"
+             class="hidden grid gap-8">
+        <h2 class="text-blue-600 text-center text-lg font-semibold">Select a connection option</h2>
+        {% set option_class = "h-full cursor-pointer py-6 px-8 shadow-md border border-slate-200 rounded-lg peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-300" %}
+        {% set option_container_class = "grid gap-8 h-fit" %}
+        <div class="grid md:grid-cols-2 gap-8">
+            <div data-option-container>
+                <input id="oauth"
+                       checked
+                       type="radio"
+                       name="connection_type"
+                       class="peer sr-only">
+                <div class="{{ option_class }}">
+                    <div class="{{ option_container_class }}">
+                        <h3 class="text-center">
+                            <label for="oauth" class="cursor-pointer">Option 1: OAuth</label>
+                        </h3>
+                        <ul class="grid gap-4">
+                            {{ list_item('Available for GSuite accounts') }}
+                            {{ list_item('Easier to setup') }}
+                            {{ list_item('More stable and less disconnects') }}
+                        </ul>
+                        <p class="bg-blue-300 text-black w-fit mx-auto rounded-lg py-1 px-4">Recommended</p>
+                    </div>
+                </div>
+            </div>
+            <div data-option-container>
+                <input id="app_password"
+                       type="radio"
+                       name="connection_type"
+                       class="peer sr-only">
+                <div class="{{ option_class }}">
+                    <div class="{{ option_container_class }}">
+                        <h3 class="text-center">
+                            <label for="app_password" class="cursor-pointer">Option 2: App Password</label>
+                        </h3>
+                        <ul class="grid gap-4">
+                            {{ list_item('Available for personal accounts') }}
+                            {{ list_item('Requires 2-factor authentication', type='bad') }}
+                            {{ list_item('More prone to disconnects', type='bad') }}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-between font-semibold">
+            <button data-back class="text-slate-400">
+                {{ svg('img/right-arrow.svg', class_='fill-slate-400 rotate-180 w-4 h-4 inline') }}
+                Back
+            </button>
+            <button data-continue class="button">
+                Continue
+                {{ svg('img/right-arrow.svg', class_='fill-white w-4 h-4 inline') }}
+            </button>
+        </div>
+    </section>
+{% endmacro %}

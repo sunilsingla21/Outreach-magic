@@ -1,0 +1,16 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+    Verify your account
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="max-w-lg py-4 px-6 mx-auto bg-white rounded-lg grid gap-4">
+            <h1>You must verify your account before proceeding</h1>
+            <div class="text-center">
+                <form method="post" action="{{ url_for('main.send_verification') }}">
+                    <button class="button">Didn't receive the email? Send it again</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

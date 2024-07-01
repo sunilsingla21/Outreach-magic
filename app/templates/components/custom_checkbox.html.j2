@@ -1,0 +1,7 @@
+{% macro custom_checkbox(checkbox, class='', append_to_id='', args={}) %}
+    <label class="custom-checkbox {{ class }}"
+           for="{{ checkbox.label.field_id }}{{ append_to_id }}">
+        {{ checkbox(id=checkbox.id + append_to_id, **args) }}
+        {{ checkbox.label.text }}
+    </label>
+{% endmacro %}

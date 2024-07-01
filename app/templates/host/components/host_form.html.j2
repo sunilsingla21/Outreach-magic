@@ -1,0 +1,50 @@
+{% from 'components/custom_checkbox.html.j2' import custom_checkbox %}
+{% from 'components/form.html.j2' import render_fields %}
+{% macro host_form(form, type, action, host=none) %}
+    <form action="{{ action }}" method="post" class="grid gap-2" data-host-form>
+        <h2>
+            {% if type == 'new' %}
+                {% set disabled = False %}
+                {% set disabled_id = "" %}
+                Add a new host to your account
+            {% elif type == 'edit' %}
+                {% set disabled = True %}
+                {% set disabled_id = "-disabled" %}
+                Update the host
+            {% endif %}
+        </h2>
+        {{ form.csrf_token() }}
+        <div class="grid gap-2">
+            {{ form.name.label(for='-name' ~ disabled_id) }}
+            {{ form.name(disabled=disabled, id='-name' ~ disabled_id, value=host.name) }}
+            {% if type == 'edit' %}<input type="hidden" id="name" name="name" value="{{ host.name }}">{% endif %}
+        </div>
+        <div class="grid gap-2">
+            {{ form.timezone.label() }}
+            {{ form.timezone(class_='w-full') }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.notification_address_string.label() }}
+            {{ form.notification_address_string(class_='w-full', value=host.notification_address_string) }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.external_sender_addresses.label() }}
+            {{ form.external_sender_addresses(rows=4, class_='w-full') }}
+        </div>
+        <div class="grid gap-2">
+            <h3>Inbox engagement</h3>
+            {{ render_fields(form, engagement_fields) }}
+        </div>
+        <div class="grid gap-2">
+            {{ form.smartlead_api_key.label() }}
+            {{ form.smartlead_api_key(class_='w-full', value=host.smartlead_api_key or '') }}
+        </div>
+        <button type="submit" class="button place-self-end">
+            {% if type == 'new' %}
+                Create
+            {% elif type == 'edit' %}
+                Update
+            {% endif %}
+        </button>
+    </form>
+{% endmacro %}
